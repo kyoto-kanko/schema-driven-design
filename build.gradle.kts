@@ -51,10 +51,19 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.register<GenerateTask>("buildApiDoc") {
-    generatorName.set("html2")
+tasks.register<GenerateTask>("buildMarkdownApiDoc") {
+    generatorName.set("markdown")
     inputSpec.set("$rootDir/src/main/resources/openapi.yaml")
     outputDir.set("$buildDir/api-doc")
+    doLast {
+        val readmeFile = file("$rootDir/README.md")
+        val generatedDoc = file("$buildDir/api-doc/README.md")
+        if (generatedDoc.exists()) {
+            readmeFile.writeText(generatedDoc.readText())
+        } else {
+            throw GradleException("Generated Markdown API doc not found: $generatedDoc")
+        }
+    }
 }
 
 openApiGenerate {
